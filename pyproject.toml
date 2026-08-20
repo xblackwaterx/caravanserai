@@ -1,6 +1,6 @@
 [project]
 name = "caravanserai"
-version = "0.1.1"
+version = "0.1.2"
 description = "Checkpointed long-running AI agent tasks with human-readable waystation notes"
 readme = "README.md"
 license = "MIT"
@@ -15,6 +15,9 @@ classifiers = [
 
 [project.scripts]
 caravanserai = "caravanserai.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["caravanserai*"]
 
 [build-system]
 requires = ["setuptools>=61"]

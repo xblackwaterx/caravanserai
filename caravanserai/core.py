@@ -9,6 +9,11 @@ from pathlib import Path
 
 
 def _run_dir(run_id: str) -> Path:
+    # security: run_id can come from caller-controlled sources (task names,
+    # ticket IDs) that might trace back to external input - reject anything
+    # that could escape .caravanserai/ via path traversal or an absolute path.
+    if not run_id or "/" in run_id or "\\" in run_id or run_id in (".", ".."):
+        raise ValueError(f"invalid run_id: {run_id!r} (no path separators or '..' allowed)")
     return Path(".caravanserai") / run_id
 
 

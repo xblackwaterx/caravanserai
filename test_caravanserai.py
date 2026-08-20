@@ -82,6 +82,16 @@ def test_resumable_picks_up_from_last_checkpoint_not_from_scratch():
     assert result == 3
 
 
+def test_checkpoint_rejects_path_traversal_run_id():
+    setup()
+    for bad in ["../evil", "..\\evil", "a/../../etc", "/etc/passwd", ".."]:
+        try:
+            checkpoint(bad, {}, "note")
+            assert False, f"should have rejected run_id={bad!r}"
+        except ValueError:
+            pass
+
+
 if __name__ == "__main__":
     import sys
     import traceback
