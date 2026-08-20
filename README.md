@@ -62,6 +62,31 @@ python demo.py
 caravanserai show demo
 ```
 
+### Real transcript (not staged)
+
+```
+$ python demo.py
+[1/5] doing work...
+[2/5] doing work...
+[3/5] doing work...
+^C
+crashed/killed mid-task. run me again — I'll resume, not restart.
+
+$ python demo.py
+[4/5] doing work...
+[5/5] doing work...
+done.
+
+$ caravanserai show demo
+waypoint 5
+
+finished step 5/5
+
+state: {'step': 5}
+```
+
+Killed at step 3, resumed straight to step 4 — no restart, no redone work.
+
 ## Status
 
 v1 — explicit checkpoint calls only (no auto-detection), single-process local
