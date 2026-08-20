@@ -7,3 +7,5 @@ dist/
 build/
 dist/
 *.egg-info/
+events.json
+demo.cast
