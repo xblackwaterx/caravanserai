@@ -4,9 +4,10 @@ ponytail: one runnable check for the core non-trivial logic, no framework.
 """
 import json
 import shutil
+import sys
 from pathlib import Path
 
-from caravanserai import checkpoint, load_latest, resumable
+from caravanserai import checkpoint, clean, load_command, load_latest, resumable, resumable_iterate
 
 RUN_ID = "test-run"
 ROOT = Path(".caravanserai") / RUN_ID
@@ -92,8 +93,56 @@ def test_checkpoint_rejects_path_traversal_run_id():
             pass
 
 
+def test_resumable_iterate_resumes_after_confirmed_items_only():
+    setup()
+    items = ["a", "b", "c", "d"]
+
+    processed = []
+    for item in resumable_iterate(items, RUN_ID):
+        processed.append(item)
+        if item == "c":
+            break  # crash right after consuming "c" - its checkpoint hasn't
+            # fired yet (a generator only learns "consumer is done with item i"
+            # when next() is called for item i+1), so "c" is at-least-once,
+            # not exactly-once: it gets redone on resume, "a" and "b" don't.
+
+    assert processed == ["a", "b", "c"]
+
+    # resuming: a and b are confirmed done, c was interrupted mid-confirmation
+    resumed = list(resumable_iterate(items, RUN_ID))
+    assert resumed == ["c", "d"]
+
+
+def test_checkpoint_records_command_for_resume():
+    setup()
+    checkpoint(RUN_ID, {"step": 1}, "note")
+    command = load_command(RUN_ID)
+    assert command is not None
+    # must include the interpreter, not just argv - argv[0] alone isn't
+    # directly executable (this exact bug shipped once, caught by a real
+    # clean-venv test run, not by this unit test - see git history)
+    assert command == [sys.executable] + sys.argv
+
+
+def test_clean_deletes_checkpoints():
+    setup()
+    checkpoint(RUN_ID, {"step": 1}, "note")
+    assert load_latest(RUN_ID) is not None
+    assert clean(RUN_ID) is True
+    assert load_latest(RUN_ID) is None
+    assert clean(RUN_ID) is False  # nothing left to delete, second time
+
+
+def test_checkpoint_rejects_non_json_serializable_state():
+    setup()
+    try:
+        checkpoint(RUN_ID, {"bad": {1, 2, 3}}, "note")  # a set isn't JSON-serializable
+        assert False, "should have rejected a non-serializable state"
+    except ValueError as e:
+        assert "JSON-serializable" in str(e)
+
+
 if __name__ == "__main__":
-    import sys
     import traceback
 
     tests = [v for k, v in list(globals().items()) if k.startswith("test_")]

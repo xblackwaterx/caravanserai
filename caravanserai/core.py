@@ -3,9 +3,11 @@
 ponytail: stdlib only, no DB. json.dumps + os.replace is all "atomic write" needs.
 """
 import json
-import os
+import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+import os
 
 
 def _run_dir(run_id: str) -> Path:
@@ -31,10 +33,28 @@ def checkpoint(run_id: str, state: dict, note: str) -> int:
     run_dir = _run_dir(run_id)
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    try:
+        state_json = json.dumps(state, indent=2)
+    except TypeError as e:
+        raise ValueError(
+            f"checkpoint() state must be JSON-serializable (plain dicts/lists/"
+            f"str/int/float/bool/None) - got: {e}"
+        ) from e
+
     latest_file = run_dir / "latest"
     n = int(latest_file.read_text()) + 1 if latest_file.exists() else 1
 
-    _atomic_write(run_dir / "state.json", json.dumps(state, indent=2))
+    meta_file = run_dir / "meta.json"
+    if not meta_file.exists():
+        # record how this run was launched, once, so `caravanserai resume`
+        # can replay it later without the caller wiring that up themselves.
+        # sys.executable is required, not just sys.argv - argv[0] alone
+        # (e.g. "myscript.py") isn't directly executable on Windows or on
+        # Linux without a shebang; subprocess needs the interpreter too.
+        command = [sys.executable] + sys.argv
+        _atomic_write(meta_file, json.dumps({"command": command}, indent=2))
+
+    _atomic_write(run_dir / "state.json", state_json)
     ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
     _atomic_write(run_dir / f"waypoint-{n}.md", f"# Waypoint {n} - {ts}\n\n{note}\n")
     _atomic_write(latest_file, str(n))
@@ -54,3 +74,28 @@ def load_latest(run_id: str):
     waypoint_md = (run_dir / f"waypoint-{n}.md").read_text()
     note = waypoint_md.split("\n\n", 1)[1].strip()
     return state, note, n
+
+
+def load_command(run_id: str):
+    """Return the argv the run was originally launched with, or None."""
+    meta_file = _run_dir(run_id) / "meta.json"
+    if not meta_file.exists():
+        return None
+    return json.loads(meta_file.read_text())["command"]
+
+
+def last_updated(run_id: str):
+    """Return the mtime (float, seconds since epoch) of the latest checkpoint, or None."""
+    latest_file = _run_dir(run_id) / "latest"
+    if not latest_file.exists():
+        return None
+    return latest_file.stat().st_mtime
+
+
+def clean(run_id: str) -> bool:
+    """Delete a run's checkpoints entirely. Returns True if anything was deleted."""
+    run_dir = _run_dir(run_id)
+    if not run_dir.exists():
+        return False
+    shutil.rmtree(run_dir)
+    return True

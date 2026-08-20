@@ -32,6 +32,27 @@ would report the state of the road to whoever rides out next.
 
 ## Quickstart
 
+Looping over a list of things (files, tasks, rows)? Use `resumable_iterate` -
+zero manual state bookkeeping:
+
+```python
+from caravanserai import resumable_iterate
+
+for f in resumable_iterate(all_files(), run_id="my-run"):
+    convert_file(f)
+```
+
+Kill it mid-run. Run it again - it picks up right where it left off, no
+`checkpoint()` call, no state dict to design yourself. One caveat, honestly
+stated: it's at-least-once, not exactly-once - the item you were mid-way
+through when the crash happened may get reprocessed once (never more, never
+half-processed), since a generator only learns you finished an item when the
+loop asks for the next one. Fine for idempotent work; worth knowing if not.
+
+For anything that isn't a flat list - a while-loop, a state machine, multiple
+things changing per step - use `checkpoint()` + `@resumable` directly and
+shape your own state dict:
+
 ```python
 from caravanserai import checkpoint, resumable
 
@@ -96,6 +117,20 @@ durable-execution engine. What none of them do is leave behind something a
 *human* can read at a glance to understand what the agent actually did. That
 gap is the entire reason this exists.
 
+## CLI
+
+```
+caravanserai list                # every run, waypoint count, last-updated
+caravanserai show <run_id>       # inspect the latest waypoint note + state
+caravanserai resume <run_id>     # re-run the exact command that started it
+caravanserai clean <run_id>      # delete a run's checkpoints
+```
+
+`resume` works because the first `checkpoint()` call for a run records the
+command it was launched with (`sys.argv`) - `caravanserai resume` just
+replays that command as a subprocess, so `@resumable` picks up from the last
+checkpoint the normal way.
+
 ## Try it yourself
 
 ```
@@ -146,11 +181,12 @@ for agents *you* build in Python that don't have that built in.
 
 ## Status
 
-v1 - explicit checkpoint calls only (no auto-detection), single-process
-local files (no distributed state), inspect-only CLI (the real resume path
-is `@resumable` in your own code). Deliberately not attempting LangGraph/
-Temporal-grade replay-with-re-execution semantics - save/load state is the
-whole promise, kept simple on purpose.
+0.2.0 - `resumable_iterate` for the common list-processing case,
+`checkpoint`/`@resumable` for everything else, a CLI that can actually
+resume a run (not just inspect it). Still single-process local files only
+(no distributed state), still no auto-detection of checkpoint intervals -
+deliberately not attempting LangGraph/Temporal-grade replay-with-
+re-execution semantics. Save/load state, kept simple on purpose.
 
 ## License
 
