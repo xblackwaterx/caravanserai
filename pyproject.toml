@@ -2,6 +2,7 @@
 name = "caravanserai"
 version = "0.1.0"
 description = "Checkpointed long-running AI agent tasks with human-readable waystation notes"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
 
