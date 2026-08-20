@@ -1,0 +1,13 @@
+[project]
+name = "caravanserai"
+version = "0.1.0"
+description = "Checkpointed long-running AI agent tasks with human-readable waystation notes"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+caravanserai = "caravanserai.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
