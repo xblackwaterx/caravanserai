@@ -1,4 +1,4 @@
-"""checkpoint() and load_latest() — atomic JSON+Markdown waystation files.
+"""checkpoint() and load_latest() - atomic JSON+Markdown waystation files.
 
 ponytail: stdlib only, no DB. json.dumps + os.replace is all "atomic write" needs.
 """
@@ -31,7 +31,7 @@ def checkpoint(run_id: str, state: dict, note: str) -> int:
 
     _atomic_write(run_dir / "state.json", json.dumps(state, indent=2))
     ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    _atomic_write(run_dir / f"waypoint-{n}.md", f"# Waypoint {n} — {ts}\n\n{note}\n")
+    _atomic_write(run_dir / f"waypoint-{n}.md", f"# Waypoint {n} - {ts}\n\n{note}\n")
     _atomic_write(latest_file, str(n))
 
     return n

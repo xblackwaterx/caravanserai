@@ -1,4 +1,4 @@
-"""caravanserai list|show <run_id> — inspect checkpoints from the terminal.
+"""caravanserai list|show <run_id> - inspect checkpoints from the terminal.
 
 ponytail: v1 CLI is inspect-only; @resumable in your own code is the real
 resume path. argparse from stdlib, no click/typer needed for 2 subcommands.

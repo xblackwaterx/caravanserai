@@ -1,4 +1,4 @@
-"""@resumable — on crash, next call picks up from the last checkpoint."""
+"""@resumable - on crash, next call picks up from the last checkpoint."""
 import functools
 
 from .core import load_latest

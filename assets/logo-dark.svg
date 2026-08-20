@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" width="320" height="120">
+  <title>Caravanserai</title>
+
+  <!-- pointed archway: the caravanserai gate -->
+  <path
+    d="M 40 100
+       L 40 60
+       Q 40 20 70 20
+       Q 100 20 100 60
+       L 100 100"
+    fill="none"
+    stroke="#c2703d"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- inner arch line -->
+  <path
+    d="M 52 100
+       L 52 62
+       Q 52 32 70 32
+       Q 88 32 88 62
+       L 88 100"
+    fill="none"
+    stroke="#c2703d"
+    stroke-width="3"
+    opacity="0.5"
+  />
+
+  <!-- ground line -->
+  <line x1="20" y1="100" x2="300" y2="100" stroke="#f0e6dc" stroke-width="2" opacity="0.25" />
+
+  <!-- the relay: waypoints past the gate -->
+  <line x1="120" y1="90" x2="280" y2="90" stroke="#c2703d" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" />
+  <circle cx="120" cy="90" r="5" fill="#c2703d" />
+  <circle cx="180" cy="90" r="5" fill="#c2703d" />
+  <circle cx="240" cy="90" r="5" fill="#c2703d" />
+  <circle cx="290" cy="90" r="7" fill="none" stroke="#c2703d" stroke-width="2.5" />
+
+  <!-- wordmark -->
+  <text x="120" y="55" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#f0e6dc">
+    Caravanserai
+  </text>
+</svg>

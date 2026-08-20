@@ -60,7 +60,7 @@ def test_resumable_picks_up_from_last_checkpoint_not_from_scratch():
             if step == 2 and should_crash["value"]:
                 should_crash["value"] = False
                 # simulate a crash right after step 2 starts, before its own
-                # checkpoint — so resume should replay step 2, not skip it.
+                # checkpoint - so resume should replay step 2, not skip it.
                 raise RuntimeError("simulated crash")
             checkpoint(run_id, {"step": step}, f"did step {step}")
         return step
@@ -78,7 +78,7 @@ def test_resumable_picks_up_from_last_checkpoint_not_from_scratch():
     calls.clear()
     result = run_task(RUN_ID, {"step": 0})
 
-    assert calls == [2, 3]  # resumed from step 1, redid 2 and 3 — never redid step 1
+    assert calls == [2, 3]  # resumed from step 1, redid 2 and 3 - never redid step 1
     assert result == 3
 
 
