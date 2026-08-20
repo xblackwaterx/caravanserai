@@ -1,6 +1,6 @@
 [project]
 name = "caravanserai"
-version = "0.2.0"
+version = "0.2.1"
 description = "Checkpointed long-running AI agent tasks with human-readable waystation notes"
 readme = "README.md"
 license = "MIT"

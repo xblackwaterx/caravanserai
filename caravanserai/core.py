@@ -5,6 +5,7 @@ ponytail: stdlib only, no DB. json.dumps + os.replace is all "atomic write" need
 import json
 import shutil
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 import os
@@ -22,7 +23,18 @@ def _run_dir(run_id: str) -> Path:
 def _atomic_write(path: Path, content: str) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(content, encoding="utf-8")
-    os.replace(tmp, path)  # atomic on POSIX and Windows
+    # os.replace is atomic on both POSIX and Windows, but on Windows it can
+    # transiently raise PermissionError under rapid repeated writes to the
+    # same path (Defender/indexing briefly holding the file open) - retry a
+    # few times with a short backoff instead of failing a real checkpoint.
+    for attempt in range(5):
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if attempt == 4:
+                raise
+            time.sleep(0.01 * (2**attempt))
 
 
 def checkpoint(run_id: str, state: dict, note: str) -> int:

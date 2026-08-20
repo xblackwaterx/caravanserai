@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/caravanserai?cacheSeconds=300)](https://pypi.org/project/caravanserai/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<img alt="Caravanserai crashing mid-migration and resuming cleanly" src="https://raw.githubusercontent.com/xblackwaterx/caravanserai/master/assets/demo.svg" width="800">
+<img alt="Caravanserai crashing mid-migration and resuming cleanly" src="https://raw.githubusercontent.com/xblackwaterx/caravanserai/master/assets/demo.gif" width="600">
 
 *Real run, not staged - killed mid-file 4, resumed at file 4 automatically.
 Full source: [`examples/migrate_files.py`](examples/migrate_files.py).*

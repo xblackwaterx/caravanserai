@@ -93,6 +93,19 @@ def test_checkpoint_rejects_path_traversal_run_id():
             pass
 
 
+def test_checkpoint_survives_rapid_repeated_calls():
+    # regression test: os.replace() on Windows can transiently raise
+    # PermissionError under rapid repeated writes to the same path
+    # (Defender/indexing briefly holding the file) - _atomic_write retries
+    # with backoff instead of letting a real checkpoint crash.
+    setup()
+    for i in range(200):
+        checkpoint(RUN_ID, {"i": i}, f"step {i}")
+    result = load_latest(RUN_ID)
+    assert result[0] == {"i": 199}
+    assert result[2] == 200
+
+
 def test_resumable_iterate_resumes_after_confirmed_items_only():
     setup()
     items = ["a", "b", "c", "d"]
