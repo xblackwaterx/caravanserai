@@ -9,9 +9,6 @@
 
 <img alt="Caravanserai crashing mid-migration and resuming cleanly" src="https://raw.githubusercontent.com/xblackwaterx/caravanserai/master/assets/demo.gif" width="600">
 
-*Real run, not staged - killed mid-file 4, resumed at file 4 automatically.
-Full source: [`examples/migrate_files.py`](examples/migrate_files.py).*
-
 ## The idea, before the code
 
 For a thousand years, caravans crossing the Silk Road never made the journey
