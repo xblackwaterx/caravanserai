@@ -3,8 +3,8 @@
   <img alt="Caravanserai" src="https://raw.githubusercontent.com/xblackwaterx/caravanserai/master/assets/logo-light.svg" width="320">
 </picture>
 
-[![PyPI](https://img.shields.io/pypi/v/caravanserai)](https://pypi.org/project/caravanserai/)
-[![Python](https://img.shields.io/pypi/pyversions/caravanserai?cacheSeconds=1)](https://pypi.org/project/caravanserai/)
+[![PyPI](https://img.shields.io/pypi/v/caravanserai?cacheSeconds=300)](https://pypi.org/project/caravanserai/)
+[![Python](https://img.shields.io/pypi/pyversions/caravanserai?cacheSeconds=300)](https://pypi.org/project/caravanserai/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## The idea, before the code
@@ -116,6 +116,74 @@ solves it far more rigorously than Caravanserai attempts to - this isn't a
 durable-execution engine. What none of them do is leave behind something a
 *human* can read at a glance to understand what the agent actually did. That
 gap is the entire reason this exists.
+
+## User flow, end to end
+
+A real example lives at [`examples/migrate_files.py`](examples/migrate_files.py) -
+migrating 10 files with a per-file operation (stand-in for an LLM call).
+Here's the actual flow, with output from a real run:
+
+**1. Write the loop** - one import, one call, no state dict to design:
+```python
+from caravanserai import resumable_iterate
+
+def all_js_files():
+    return [f"module_{i}.js" for i in range(1, 11)]
+
+for f in resumable_iterate(all_js_files(), run_id="js-to-ts-migration"):
+    convert_file(f)  # your own logic - an LLM call, a slow operation, whatever
+```
+
+**2. Run it:**
+```
+$ python examples/migrate_files.py
+  converting module_1.js...
+  done: module_1.js
+  converting module_2.js...
+  done: module_2.js
+  converting module_3.js...
+```
+
+**3. It dies mid-file 4** (crash, Ctrl+C, killed process - doesn't matter
+which) - files 1-3 were fully processed and checkpointed already:
+```
+  converting module_4.js...
+^C
+```
+
+**4. Check what happened without rerunning anything:**
+```
+$ caravanserai show js-to-ts-migration
+waypoint 3
+
+processed item 3/10
+
+state: {'_i': 3}
+```
+
+**5. Run the exact same command again:**
+```
+$ python examples/migrate_files.py
+  converting module_4.js...
+  done: module_4.js
+  converting module_5.js...
+  ...
+  converting module_10.js...
+  done: module_10.js
+migration complete.
+```
+
+No flags, no `--resume`, nothing to remember - it picked up at file 4 on its
+own because the `run_id` matched. Files 1-3 were fully converted and
+checkpointed before the crash, so they're skipped; file 4 was killed
+mid-`convert_file`, so `_i` still says 3 done and file 4 runs again - see the
+at-least-once caveat above for exactly when a file gets redone.
+
+**6. Once you're done with a run, clean it up:**
+```
+$ caravanserai clean js-to-ts-migration
+deleted checkpoints for 'js-to-ts-migration'
+```
 
 ## CLI
 
