@@ -38,8 +38,13 @@ Caravanserai's waypoint files are markdown, meant to be read:
 finished step 3, next is step 4
 ```
 
-Works with any Python agent loop — LangChain, OpenAI Agents SDK, or plain
-scripts. No database, no server, just local JSON + Markdown files.
+Works with any Python agent loop you control — LangChain, LangGraph, the
+Claude Agent SDK, OpenAI Agents SDK, CrewAI, or plain scripts. No database,
+no server, just local JSON + Markdown files.
+
+**Not for the Claude Code CLI itself** — it already has its own session
+resume (`--resume`/`--continue`) and you don't write its agent loop. This is
+for agents *you* build in Python that don't have that built in.
 
 ## Install
 
