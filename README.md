@@ -4,7 +4,7 @@
 </picture>
 
 [![PyPI](https://img.shields.io/pypi/v/caravanserai)](https://pypi.org/project/caravanserai/)
-[![Python](https://img.shields.io/pypi/pyversions/caravanserai)](https://pypi.org/project/caravanserai/)
+[![Python](https://img.shields.io/pypi/pyversions/caravanserai?cacheSeconds=1)](https://pypi.org/project/caravanserai/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## The idea, before the code
