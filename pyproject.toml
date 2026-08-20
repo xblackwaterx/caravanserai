@@ -1,10 +1,17 @@
 [project]
 name = "caravanserai"
-version = "0.1.0"
+version = "0.1.1"
 description = "Checkpointed long-running AI agent tasks with human-readable waystation notes"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.9"
 dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 
 [project.scripts]
 caravanserai = "caravanserai.cli:main"
